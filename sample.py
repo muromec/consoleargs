@@ -1,5 +1,5 @@
 import sys
-from console_args import command
+from consoleargs import command
 
 @command(positional=('dest',))
 def main(url, dest=[], verbose=0, secret=None, insecure=False, source_name='default', project=[]):

@@ -10,7 +10,12 @@ Usage
 
 Usage example:
 
-    >>> from console_args import command
+    >>> from consoleargs import command
     >>> @command
     >>> def main(destination, name=None, verbose=0):
+    >>>   """
+    >>>    :param destination: Where to look
+    >>>    :param name: Whot to search
+    >>>    :param verbose: How much to talk
+    >>>   """
     >>>   print destination, name, verbose
