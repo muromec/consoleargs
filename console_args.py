@@ -160,6 +160,11 @@ def parse_args(f, *args, **opts):
         print_help()
         raise ArgError
 
+      if '=' in key:
+        key,_val = key.split('=')
+      else:
+        _val = None
+
       var = aliases.get(key, key)
       if var not in defaults:
         print 'oops what is %r ?' % var
@@ -191,11 +196,11 @@ def parse_args(f, *args, **opts):
         continue
 
 
-      if keys or not params and dval is None:
+      if keys or not params and dval is None and _val is None:
         print 'argument %r (%r) requires value' % (key, dval)
         raise ArgError
 
-      val = params.pop(0) if params else dval
+      val = _val if _val is not None else params.pop(0) if params else dval
       if isinstance(dval, list):
         val_list = kwargs.get(var) or []
         val_list.append(val)
