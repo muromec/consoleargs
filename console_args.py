@@ -39,6 +39,11 @@ def build_help(func, positional, defaults, aliases):
   else:
     name = func
 
+  import re
+  param_help = dict(re.findall(':param ([a-zA-Z_]+): (.*)\n',
+      func.__doc__ or '',
+      flags=re.MULTILINE))
+
   msg = "Usage %(progname)s " % {"progname": name}
   kwargs = list(defaults.keys())
   for arg in positional:
@@ -51,7 +56,13 @@ def build_help(func, positional, defaults, aliases):
   if kwargs:
     msg += '[OPTIONS]'
 
-  msg += '\n\nOptions:\n'
+  msg += '\n\n'
+
+  for arg in positional:
+    if arg in param_help:
+      msg += '%s:\t%s\n' % (arg.upper(), param_help[arg])
+
+  msg += '\nOptions:\n'
 
   back_alias = {}
   for alias, arg in aliases.items():
@@ -66,6 +77,10 @@ def build_help(func, positional, defaults, aliases):
         msg += '-%s ' % alias
       else:
         msg += '--%s ' % alias
+
+    if arg in param_help:
+      msg += '\t'
+      msg += param_help.get(arg)
 
     msg += '\n'
 
