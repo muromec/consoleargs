@@ -179,7 +179,7 @@ def parse_args(f, *args, **opts):
         if not keys and params:
           nextparam = params[0]
           if not nextparam.startswith('--') or \
-              nextparams.startswith('-'):
+              nextparam.startswith('-'):
                 try:
                   val = int(nextparam)
                   kwargs[var] = val
