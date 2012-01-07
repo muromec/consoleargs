@@ -48,7 +48,12 @@ def build_help(func, positional, defaults, aliases):
   kwargs = list(defaults.keys())
   for arg in positional:
     if arg in kwargs:
-      msg += '[%s] ' % arg.upper()
+      msg += '[%s]' % arg.upper()
+      if isinstance(defaults[arg], list):
+        msg += '... '
+      else:
+        msg += ' '
+
       kwargs.remove(arg)
     else:
       msg += '%s ' % arg.upper()
@@ -130,9 +135,21 @@ def parse_args(f, *args, **opts):
       print_help()
       raise ArgError
 
-    elif len(args) < len(positional):
+    elif len(positional) - len(args) > 1:
       args.append(param)
       continue
+    elif len(positional) - len(args) == 1:
+      dval = defaults.get(positional[-1])
+      if isinstance(dval, list):
+        args.append([param])
+      else:
+        args.append(param)
+
+      continue
+    elif args and len(positional) == len(args) \
+        and isinstance(args[-1], list):
+          args[-1].append(param)
+          continue
     else:
       print 'ivalid param', param
       raise ArgError

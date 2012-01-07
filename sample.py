@@ -2,7 +2,7 @@ import sys
 from console_args import command
 
 @command(positional=('dest',))
-def main(url, dest=None, verbose=0, secret=None, insecure=False, source_name='default', project=[]):
+def main(url, dest=[], verbose=0, secret=None, insecure=False, source_name='default', project=[]):
   """
   :param url: where to fetch repo
   :param dest: destination directory
