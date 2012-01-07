@@ -72,6 +72,9 @@ def build_help(func, positional, defaults, aliases):
   return msg
 
 def parse_args(f, *args, **opts):
+  def print_help():
+    print build_help(f, positional, defaults, aliases)
+
   spec = inspect.getargspec(f)
   positional, defaults, _defaults = list(spec.args), {}, list(spec.defaults)
   _positional = opts.get('positional') or []
@@ -89,10 +92,9 @@ def parse_args(f, *args, **opts):
     defaults[k] = v
 
   aliases = build_aliases(defaults)
-  help_msg = build_help(f, positional, defaults, aliases)
 
   if args and args[0] in ['--help', '-h']:
-    print help_msg
+    print_help()
     raise ArgError
 
   if positional:
@@ -110,7 +112,7 @@ def parse_args(f, *args, **opts):
     elif param.startswith('-'):
       keys = list(param[1:])
     elif param == 'help':
-      print help_msg
+      print_help()
       raise ArgError
 
     elif len(args) < len(positional):
@@ -123,7 +125,7 @@ def parse_args(f, *args, **opts):
     while keys:
       key = keys.pop(0)
       if key == 'help':
-        print help_msg
+        print_help()
         raise ArgError
 
       var = aliases.get(key, key)
