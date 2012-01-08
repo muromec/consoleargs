@@ -98,6 +98,7 @@ def parse_args(f, *args, **opts):
   spec = inspect.getargspec(f)
   positional, defaults, _defaults = list(spec.args), {}, list(spec.defaults)
   _positional = opts.get('positional') or []
+  all_help = opts.get('all_help', True)
   required = positional[:]
 
   while _defaults:
@@ -131,7 +132,7 @@ def parse_args(f, *args, **opts):
       keys = [param[2:]]
     elif param.startswith('-'):
       keys = list(param[1:])
-    elif param == 'help':
+    elif all_help and param == 'help':
       print_help()
       raise ArgError
 
@@ -150,13 +151,16 @@ def parse_args(f, *args, **opts):
         and isinstance(args[-1], list):
           args[-1].append(param)
           continue
+    elif spec.varargs:
+      args.append(param)
+      continue
     else:
       print 'ivalid param', param
       raise ArgError
 
     while keys:
       key = keys.pop(0)
-      if key == 'help':
+      if all_help and key == 'help':
         print_help()
         raise ArgError
 
@@ -167,6 +171,10 @@ def parse_args(f, *args, **opts):
 
       var = aliases.get(key, key)
       if var not in defaults:
+        if spec.varargs:
+            args.append(param)
+            continue
+
         print 'oops what is %r ?' % var
         raise ArgError
 
