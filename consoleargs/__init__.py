@@ -228,6 +228,14 @@ def command(*args, **opts):
     @wraps(f)
     def command(*args):
       import sys
+      argv = opts.get('argv', True)
+      if argv:
+          first = 1 if argv is True else argv
+          last = None
+          if isinstance(argv, (list, tuple)) and len(argv) == 2:
+              first, last = argv
+
+          args = sys.argv[first:last]
 
       try:
         parsed, parsed_kwargs = parse_args(f, *args, **opts)

@@ -24,4 +24,4 @@ def main(url, dest=[], verbose=0, secret=None, insecure=False, source_name='defa
 
 
 if __name__ == '__main__':
-  main(*sys.argv[1:])
+  main()
