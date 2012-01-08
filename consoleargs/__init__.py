@@ -96,7 +96,7 @@ def parse_args(f, *args, **opts):
     print build_help(f, positional, defaults, aliases)
 
   spec = inspect.getargspec(f)
-  positional, defaults, _defaults = list(spec.args), {}, list(spec.defaults)
+  positional, defaults, _defaults = list(spec.args), {}, list(spec.defaults or [])
   _positional = opts.get('positional') or []
   all_help = opts.get('all_help', True)
   required = positional[:]
@@ -229,7 +229,7 @@ def command(*args, **opts):
     def command(*args):
       import sys
       argv = opts.get('argv', True)
-      if argv:
+      if not args and argv:
           first = 1 if argv is True else argv
           last = None
           if isinstance(argv, (list, tuple)) and len(argv) == 2:
