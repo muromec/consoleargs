@@ -7,7 +7,7 @@ class ArgError(Exception):
 def positional_error(positional, args):
   delt = len(positional) - len(args)
   for arg in positional[-delt:]:
-    print 'positioal argument %r not specified' %arg
+    print 'Positional argument %r not specified' %arg
 
   raise ArgError
 
@@ -32,6 +32,10 @@ def build_aliases(defaults):
   return aliases
 
 def build_help(func, positional, defaults, aliases):
+  """ Function prints command line help information:
+    - function docstring
+    - list of possible params
+  """
   if callable(func):
     import sys
     mod = sys.modules.get(func.__module__)
@@ -44,7 +48,8 @@ def build_help(func, positional, defaults, aliases):
       func.__doc__ or '',
       flags=re.MULTILINE))
 
-  msg = "Usage %(progname)s " % {"progname": name}
+  msg = "Usage: %(progname)s " % {"progname": name}
+
   kwargs = list(defaults.keys())
   for arg in positional:
     if arg in kwargs:
