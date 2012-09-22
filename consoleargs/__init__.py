@@ -160,7 +160,7 @@ def parse_args(f, *args, **opts):
       args.append(param)
       continue
     else:
-      print 'ivalid param', param
+      print 'invalid param', param
       raise ArgError
 
     while keys:
