@@ -144,6 +144,111 @@ class ParseArgsTest(BaseTest):
             pass
         self.assertRaises(ArgError, parse_args, foo, '-h')
         self.assertRaises(ArgError, parse_args, foo, '--help')
+        self.assertRaises(ArgError, parse_args, foo, 'test', '42', '-h')
+        self.assertRaises(ArgError, parse_args, foo, 'test', '42', '--help')
+
+    def test_simple_args(self):
+        def foo(arg1, arg2):
+            pass
+
+        error_msg = '''Positional argument '%s' not specified\n'''
+
+        self.assertEqual(parse_args(foo, 'test', '42'), (['test', '42'], {}))
+
+        self.assertRaises(ArgError, parse_args, foo)
+        self.assertEqual(self.stdout.getvalue(), error_msg * 2 % ('arg1', 'arg2'))
+
+        self.stdout.truncate(0)
+
+        self.assertRaises(ArgError, parse_args, foo, 'test')
+        self.assertEqual(self.stdout.getvalue(), error_msg % 'arg2')
+
+    def test_default_boolean_arg(self):
+        def foo(bar=False):
+            pass
+
+        self.assertEqual(parse_args(foo), ([], {'bar': False}))
+        self.assertEqual(parse_args(foo, '-b'), ([], {'bar': True}))
+        self.assertEqual(parse_args(foo, '--bar'), ([], {'bar': True}))
+
+    def test_default_integer_arg(self):
+        def foo(bar=0):
+            pass
+
+        self.assertEqual(parse_args(foo), ([], {'bar': 0}))
+        self.assertEqual(parse_args(foo, '-b'), ([], {'bar': 1}))
+        self.assertEqual(parse_args(foo, '--bar'), ([], {'bar': 1}))
+        self.assertEqual(parse_args(foo, '-bb'), ([], {'bar': 2}))
+        self.assertEqual(parse_args(foo, '-b', '-b'), ([], {'bar': 2}))
+        self.assertEqual(parse_args(foo, '--b', '--bar'), ([], {'bar': 2}))
+        self.assertEqual(parse_args(foo, '--bar', '--bar'), ([], {'bar': 2}))
+
+    def test_default_list_arg(self):
+        def foo(bar=[]):
+            pass
+
+        self.assertEqual(parse_args(foo), ([], {'bar': []}))
+        self.assertEqual(parse_args(foo, '--b=baz'), ([], {'bar': ['baz']}))
+        self.assertEqual(parse_args(foo, '--bar=baz'), ([], {'bar': ['baz']}))
+        self.assertEqual(
+            parse_args(foo, '--b=bar', '--b=qux'), ([], {'bar': ['bar', 'qux']})
+        )
+        self.assertEqual(
+            parse_args(foo, '--bar=baz', '--bar=qux'),
+            ([], {'bar': ['baz', 'qux']})
+        )
+
+        self.assertRaises(ArgError, parse_args, foo, '-b=baz')
+
+    def test_default_str_arg(self):
+        def foo(bar='baz'):
+            pass
+
+        self.assertEqual(parse_args(foo), ([], {'bar': 'baz'}))
+        self.assertEqual(parse_args(foo, '--b=qux'), ([], {'bar': 'qux'}))
+        self.assertEqual(parse_args(foo, '--bar=qux'), ([], {'bar': 'qux'}))
+        self.assertEqual(parse_args(foo, '--bar='), ([], {'bar': ''}))
+
+        self.assertRaises(ArgError, parse_args, foo, '-b=qux')
+
+    def test_unknown_arg(self):
+        def foo(bar=None):
+            pass
+
+        self.assertRaises(ArgError, parse_args, foo, '--baz')
+        self.assertEqual(self.stdout.getvalue(), '''oops what is 'baz' ?\n''')
+
+    def test_wrong_list_arg(self):
+        def foo(bar=[]):
+            pass
+
+        # this is strange
+        self.assertEqual(parse_args(foo, '--bar'), ([], {'bar': [[]]}))
+
+    def test_positional_arg(self):
+        def foo(bar, baz=[]):
+            pass
+
+        self.assertEqual(
+            parse_args(foo, 'val', '42', 'qux', positional='baz'),
+            (['val', ['42', 'qux']], {})
+        )
+
+    def test_require_value(self):
+        def foo(bar=None):
+            pass
+
+        self.assertRaises(ArgError, parse_args, foo, '--bar')
+        self.assertEqual(self.stdout.getvalue(),
+            '''argument 'bar' (None) requires value\n''')
+
+    def test_all_help(self):
+        def foo(bar=[]):
+            pass
+
+        #Why we need this?
+        self.assertRaises(ArgError, parse_args, foo, 'help', all_help=False)
+        self.failUnlessRaises(ArgError, parse_args, foo, 'help')
 
 
 if __name__ == '__main__':
