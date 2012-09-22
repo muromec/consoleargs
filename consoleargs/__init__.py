@@ -191,16 +191,17 @@ def parse_args(f, *args, **opts):
       elif isinstance(dval, int):
         if not keys and params:
           nextparam = params[0]
-          if not nextparam.startswith('--') or \
-              nextparam.startswith('-'):
-                try:
-                  val = int(nextparam)
-                  kwargs[var] = val
-                  params.pop(0)
-                  continue
-
-                except:
-                  pass
+          if not nextparam.startswith('--'):
+            try:
+              if nextparam[:2].lower() == '0x':
+                val = int(nextparam, 16)
+              else:
+                val = int(nextparam)
+              kwargs[var] = val
+              params.pop(0)
+              continue
+            except:
+              pass
 
         val = kwargs.get(var, dval)
 

@@ -185,6 +185,7 @@ class ParseArgsTest(BaseTest):
         self.assertEqual(parse_args(foo, '--bar', '5'), ([], {'bar':5}))
         self.assertEqual(parse_args(foo, '-b', '9'), ([], {'bar':9}))
         self.assertEqual(parse_args(foo, '-b', '1423'), ([], {'bar':1423}))
+        self.assertEqual(parse_args(foo, '-b', '0x11'), ([], {'bar':17}))
 
     def test_default_list_arg(self):
         def foo(bar=[]):
